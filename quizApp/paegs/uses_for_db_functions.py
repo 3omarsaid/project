@@ -44,3 +44,4 @@ where e.TchID = ? """
 params = (1,)
 print("result of query : ",db.query(query,params))
 # create
+#create 2
