@@ -27,7 +27,7 @@ db.insert("exams",exam)
 db.insert("exams",exam2)
 db.insert("exams",exam3)
 print("all exams : ",db.getAll("exams"))
-
+exid = 1
 print("exam id = 1 :",db.get("exams",{"ExID":1}))
 print("exams for teacher id = 2",db.get("exams",{"TchID":2}))
 
@@ -38,7 +38,7 @@ db.delete("exams",{"ExID":1})
 print("all exams after delete Exam 1 : ",db.getAll("exams"))
 
 # بيجيب الامتحانات الي عملها المدرس الفلاني ويجيب اسمه جنب كل امتحان
-query = f"""select e.* ,u.userName from exams e
+query = f"""select e.* ,u.userName  from exams e
 join users u on u.Uid = e.TchID
 where e.TchID = ? """
 params = (1,)
