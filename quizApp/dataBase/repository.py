@@ -1,4 +1,6 @@
 import sqlite3
+# CRUD all tables
+# create - read - update - delete
 class dbManager:
     def __init__(self,path = "quiz.db"):
         self.path = path
