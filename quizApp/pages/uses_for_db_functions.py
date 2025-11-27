@@ -47,8 +47,8 @@ where exams.TchId = ?
 """
 params = (1,)
 print("result of query : ",db.query(query,params))
-# db.insert("users",{"userName":"teacher 1","password": "1234","role":"teacher"})
+db.insert("users",{"userName":"teacher 2","password": "1234","role":"teacher"})
 # db.insert("users",{"userName":"teacher 2","password": "1233","role":"teacher"})
 # db.insert("users",{"userName":"teacher 3","password": "1232","role":"teacher"})
 # print(db.getAll("users"))
-#
+#``

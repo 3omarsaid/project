@@ -56,3 +56,4 @@ def createTables():
                 foreign key (QusID) references quistions(QusID),
                 foreign key (AttID) references attempts(AttID))""")
     conn.commit()
+createTables()
