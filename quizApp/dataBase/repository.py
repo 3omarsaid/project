@@ -17,6 +17,16 @@ class dbManager:
         curs.execute(f"""insert into {table}({keys})
                     values({placeholders})""",params)
         conn.commit()
+        return curs.lastrowid
+    def insertMany(self,table,rows):
+        conn = self.connect()
+        curs = conn.cursor()
+        keys = ','.join(rows[0].keys())
+        placeholders = ','.join(['?']*len(rows[0]))
+        params = [tuple(row.values()) for row in rows]
+        curs.executemany(f"""insert into {table}({keys})
+                    values({placeholders})""",params)
+        conn.commit()
     def getAll(self,table):
         conn = self.connect()
         curs = conn.cursor()
