@@ -5,7 +5,7 @@ import streamlit as st
 from quizApp.dataBase import init_db
 db = init_db.dbIns
 teacherid=2
-role="teacher"
+role="student"
 teacher=db.get("users",{"Uid":teacherid})
 teachername=teacher[0][1]
 st.title(teachername)
