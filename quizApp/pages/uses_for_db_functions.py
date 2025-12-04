@@ -41,12 +41,12 @@ db = init_db.dbIns
 #                 "title" :"exam 4",
 #                 "timerType" :"qustion",
 #                 "time_S" :60})
-# query = f""" select exams.*,users.userName,users.role from exams
-# join users on users.Uid = exams.TchID
-# where exams.TchId = ?
-# """
-# params = (1,)
-# print("result of query : ",db.query(query,params))
+query = f""" select exams.*,users.userName,users.role from exams
+join users on users.Uid = exams.TchID
+where exams.TchId = ?
+"""
+params = (1,)
+print("result of query : ",db.query(query,params))
 # db.insert("users",{"userName":"teacher 2","password": "1234","role":"teacher"})
 # db.insert("users",{"userName":"teacher 2","password": "1233","role":"teacher"})
 # db.insert("users",{"userName":"teacher 3","password": "1232","role":"teacher"})

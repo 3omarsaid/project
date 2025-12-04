@@ -42,7 +42,9 @@ def createTables():
                 TchID integer,
                 start_at datetime default currunt_timestamp,
                 score integer,
+                numQus integer,
                 duration_S float,
+                total_time float,
                 foreign key (ExID) references exams(ExID),
                 foreign key (StuID) references users(Uid))""")
     conn.commit()

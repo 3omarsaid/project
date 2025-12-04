@@ -11,6 +11,8 @@ if "index" not in st.session_state:
     st.session_state.index = 0
 index = st.session_state.index
 st.title(qustions[index][2])
+choices = db.get("choices",{"QusID":qustions[index][0]})
+st.write(choices)
 if st.button("next"):
     st.session_state.index = index+1
     st.rerun()
