@@ -17,6 +17,7 @@ def createTables():
                 title text,
                 timerType text,
                 time_S int,
+                numQus int,
                 foreign key (TchID) references users(Uid))""")
     conn.commit()
     #Qustions
@@ -40,7 +41,7 @@ def createTables():
                 ExID integer,
                 StuID integer,
                 TchID integer,
-                start_at datetime default currunt_timestamp,
+                start_at datetime default CURRENT_TIMESTAMP,
                 score integer,
                 numQus integer,
                 duration_S float,
