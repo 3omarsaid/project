@@ -25,13 +25,14 @@ if st.session_state.exmid:
         ch2=st.text_input("choose 2",placeholder="enter your choose ",key=f"ch2{indx}")
         ch3=st.text_input("choose 3",placeholder="enter your choose ",key=f"ch3{indx}")
         ch4=st.text_input("choose 4",placeholder="enter your choose ",key=f"ch4{indx}")
+        correct=st.selectbox("correct choice",[ch1,ch2,ch3,ch4])
         st.write("-------------------------------")
         if i==st.session_state.count:
             qus={"ExID":st.session_state.exmid,"header":header}
-            choices=[{"text":ch1,"correct":False},
-                        {"text":ch2,"correct":True},
-                        {"text":ch3,"correct":False},
-                        {"text":ch4,"correct":False},]
+            choices=[{"text":ch1,"correct":correct==ch1},
+                        {"text":ch2,"correct":correct==ch2},
+                        {"text":ch3,"correct":correct==ch3},
+                        {"text":ch4,"correct":correct==ch4},]
     for i in range(st.session_state.count+1):
         creation(i)
     sub=st.button("submit")
@@ -51,6 +52,8 @@ if st.session_state.exmid:
         db.insertMany("choices",choices)
         st.session_state.clear()
         st.switch_page("pages/exams.py")
+
+
 
 
 
