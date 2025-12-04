@@ -11,13 +11,15 @@ if "count" not in st.session_state:
     st.session_state.count=0
 if "exmid" not in st.session_state:
     st.session_state.exmid = None
+if "QUsids" not in st.session_state:
+    st.session_state.QUsids=[]
 if st.button("create exam"):
     st.session_state.exmid =db.insert("exams",{"TchID":2,"title":title,"timerType":timertype,"time_s":timeinmin*60})
-if "exmid" in st.session_state:
+
+if st.session_state.exmid:
     exmid = st.session_state.exmid
     if st.button("update exam"):
         db.update("exams",{"TchID":2,"title":title,"timerType":timertype,"time_s":timeinmin*60},{"ExID":exmid})
-if st.session_state.exmid:
     qus={}
     choices = []
     def creation(indx):
@@ -29,6 +31,19 @@ if st.session_state.exmid:
         ch3=st.text_input("choose 3",placeholder="enter your choose ",key=f"ch3{indx}")
         ch4=st.text_input("choose 4",placeholder="enter your choose ",key=f"ch4{indx}")
         correct=st.selectbox("correct choice",[ch1,ch2,ch3,ch4],key=f"correct{indx}")
+        if st.button("Update",key=f"update{indx}"):
+            qus={"ExID":st.session_state.exmid,"header":header}
+            choices=[{"text":ch1,"correct":correct==ch1},
+                        {"text":ch2,"correct":correct==ch2},
+                        {"text":ch3,"correct":correct==ch3},
+                        {"text":ch4,"correct":correct==ch4},]
+            qusid = st.session_state.QUsids[indx]
+            db.update("qustions",qus,{"QusID":qusid})
+            db.delete("choices", {"QusID": qusid})
+            for cho in choices:
+                cho["QusID"] = qusid
+            db.insertMany("choices", choices)
+            st.rerun()
         st.write("-------------------------------")
         if indx==st.session_state.count:
             qus={"ExID":st.session_state.exmid,"header":header}
@@ -43,6 +58,7 @@ if st.session_state.exmid:
     add=st.button("Add anthor Qestion")
     if add:
         qusid = db.insert("qustions",qus)
+        st.session_state.QUsids.append(qusid)
         for cho in choices:
             cho["QusID"] = qusid
         db.insertMany("choices",choices)
