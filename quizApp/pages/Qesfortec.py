@@ -26,10 +26,14 @@ if st.session_state.exmid:
         global qus
         global choices
         header=st.text_input("header",placeholder="enter your qestion ",key=f"header{indx}")
-        ch1=st.text_input("choose 1",placeholder="enter your choose ",key=f"ch1{indx}")
-        ch2=st.text_input("choose 2",placeholder="enter your choose ",key=f"ch2{indx}")
-        ch3=st.text_input("choose 3",placeholder="enter your choose ",key=f"ch3{indx}")
-        ch4=st.text_input("choose 4",placeholder="enter your choose ",key=f"ch4{indx}")
+        with st.container():
+            col1,col2 = st.columns([1,1])
+            with col1:
+                ch1=st.text_input("choose 1",placeholder="enter your choose ",key=f"ch1{indx}")
+                ch2=st.text_input("choose 2",placeholder="enter your choose ",key=f"ch2{indx}")
+            with col2:
+                ch3=st.text_input("choose 3",placeholder="enter your choose ",key=f"ch3{indx}")
+                ch4=st.text_input("choose 4",placeholder="enter your choose ",key=f"ch4{indx}")
         correct=st.selectbox("correct choice",[ch1,ch2,ch3,ch4],key=f"correct{indx}")
         if st.button("Update",key=f"update{indx}"):
             qus={"ExID":st.session_state.exmid,"header":header}
@@ -70,6 +74,7 @@ if st.session_state.exmid:
         for cho in choices:
             cho["QusID"] = qusid
         db.insertMany("choices",choices)
+        db.update("exams",{"TchID":2,"title":title,"timerType":timertype,"time_s":timeinmin*60,"numQus":len(st.session_state.QUsids)},{"ExID":exmid})
         st.session_state.clear()
         st.switch_page("pages/exams.py")
         
