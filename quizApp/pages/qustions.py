@@ -9,8 +9,9 @@ tchid = 2
 stuid = 1
 # st.write(st.session_state.action)
 qustions = db.get("qustions",{"ExID":exid})
+st.write(qustions)
 if "index" not in st.session_state:
-    st.session_state.index = 2
+    st.session_state.index = 0
 index = st.session_state.index
 if "score" not in st.session_state:
     st.session_state.score = 0
