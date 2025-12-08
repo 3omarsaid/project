@@ -7,7 +7,7 @@ from quizApp.dataBase import init_db
 db = init_db.dbIns
 exid= st.session_state["exid"]
 tchid = 2
-stuid = 1
+stuid = 3
 # st.write(st.session_state.action)
 qustions = db.get("qustions",{"ExID":exid})
 if "index" not in st.session_state:

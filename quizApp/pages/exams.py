@@ -19,7 +19,6 @@ if role=="student":
             st.write(exam[2])
         with col2:
             if st.button("select",key=exam[0]):
-                st.session_state.action="select"
                 st.session_state.exid=exam[0]
                 st.switch_page("pages/qustions.py")
 else:
