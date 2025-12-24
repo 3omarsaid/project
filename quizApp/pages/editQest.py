@@ -5,6 +5,8 @@ import streamlit as st
 from quizApp.dataBase import init_db
 db = init_db.dbIns
 
+teacherid = st.session_state["teacher_id"]
+
 exmid = st.session_state.exid
 if "exam" not in st.session_state:
     st.session_state.exam = db.get("exams",{"ExID":exmid})[0]
@@ -17,7 +19,7 @@ typeOptions = ["Question","exam"]
 timertype=st.radio("timer type",typeOptions,index=typeOptions.index(exam[3]))
 timeinmin=st.number_input("time in minutes",value=exam[4]/60)
 if st.button("update exam"):
-    db.update("exams",{"TchID":2,"title":title,"timerType":timertype,"time_s":timeinmin*60},{"ExID":exmid})
+    db.update("exams",{"TchID":teacherid,"title":title,"timerType":timertype,"time_s":timeinmin*60},{"ExID":exmid})
 qus={}
 choices = []
 def creation(indx,oldChoices):
@@ -40,7 +42,7 @@ def creation(indx,oldChoices):
         correctindx+=1
     correct=st.selectbox("correct choice",[ch1,ch2,ch3,ch4],key=f"correct{indx}",index=correctindx)
     if st.button("Update",key=f"update{indx}"):
-        qus={"ExID":st.session_state.exmid,"header":header}
+        qus={"ExID":st.session_state.exid,"header":header}
         choices=[{"text":ch1,"correct":correct==ch1},
                     {"text":ch2,"correct":correct==ch2},
                     {"text":ch3,"correct":correct==ch3},
@@ -65,7 +67,8 @@ for i in range(len(qustions)):
 sub=st.button("submit")
 
 if sub:
-    db.update("exams",{"TchID":2,"title":title,"timerType":timertype,"time_s":timeinmin*60,"numQus":len(qustions)},{"ExID":exmid})
-    st.session_state.clear()
+    db.update("exams",{"TchID":teacherid,"title":title,"timerType":timertype,"time_s":timeinmin*60,"numQus":len(qustions)},{"ExID":exmid})
+    st.session_state.pop("exam")
+    st.session_state.pop("qustions")
     st.switch_page("pages/exams.py")
     

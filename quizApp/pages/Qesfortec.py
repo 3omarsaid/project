@@ -4,6 +4,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 import streamlit as st
 from quizApp.dataBase import init_db
 db = init_db.dbIns
+
+teacherid = st.session_state["teacher_id"]
+
 title=st.text_input("title",placeholder="enter the title of the exam")
 timertype=st.radio("timeer type",["Question","exam"])
 timeinmin=st.number_input("time in minutes")
@@ -14,12 +17,12 @@ if "exmid" not in st.session_state:
 if "QUsids" not in st.session_state:
     st.session_state.QUsids=[]
 if st.button("create exam"):
-    st.session_state.exmid =db.insert("exams",{"TchID":2,"title":title,"timerType":timertype,"time_s":timeinmin*60})
+    st.session_state.exmid =db.insert("exams",{"TchID":teacherid,"title":title,"timerType":timertype,"time_s":timeinmin*60})
 
 if st.session_state.exmid:
     exmid = st.session_state.exmid
     if st.button("update exam"):
-        db.update("exams",{"TchID":2,"title":title,"timerType":timertype,"time_s":timeinmin*60},{"ExID":exmid})
+        db.update("exams",{"TchID":teacherid,"title":title,"timerType":timertype,"time_s":timeinmin*60},{"ExID":exmid})
     qus={}
     choices = []
     def creation(indx):
@@ -74,7 +77,9 @@ if st.session_state.exmid:
         for cho in choices:
             cho["QusID"] = qusid
         db.insertMany("choices",choices)
-        db.update("exams",{"TchID":2,"title":title,"timerType":timertype,"time_s":timeinmin*60,"numQus":len(st.session_state.QUsids)},{"ExID":exmid})
-        st.session_state.clear()
+        db.update("exams",{"TchID":teacherid,"title":title,"timerType":timertype,"time_s":timeinmin*60,"numQus":len(st.session_state.QUsids)},{"ExID":exmid})
+        st.session_state.pop("count")
+        st.session_state.pop("exmid")
+        st.session_state.pop("QUsids")
         st.switch_page("pages/exams.py")
         

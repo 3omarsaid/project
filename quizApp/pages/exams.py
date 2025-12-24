@@ -4,8 +4,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 import streamlit as st
 from quizApp.dataBase import init_db
 db = init_db.dbIns
-teacherid=2
-role="student"
+
+role= st.session_state.role
+
+teacherid = st.session_state["teacher_id"]
+
 teacher=db.get("users",{"Uid":teacherid})
 teachername=teacher[0][1]
 st.title(teachername)
@@ -16,11 +19,13 @@ if role=="student":
         st.container()
         col1,col2=st.columns([3,1])
         with col1:
-            st.write(exam[2])
+            st.markdown(f"### {exam[2]}")
         with col2:
             if st.button("select",key=exam[0]):
                 st.session_state.exid=exam[0]
                 st.switch_page("pages/qustions.py")
+    if st.button("results"):
+        st.switch_page("pages/results.py")
 else:
     #teacher
     for exam in exams:
@@ -39,8 +44,6 @@ else:
                         if st.button("Delete",key=f"Del_{exam[0]}"):
                             db.delete("exams",{"ExID":exam[0]})
     if st.button("Create"):
-        st.session_state.action="Create"
         st.switch_page("pages/Qesfortec.py")
-
-
-
+    if st.button("results"):
+        st.switch_page("pages/results.py")
