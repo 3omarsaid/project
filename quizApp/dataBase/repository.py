@@ -1,4 +1,3 @@
-import sqlite3
 # CRUD all tables
 # create - read - update - delete
 class dbManager:

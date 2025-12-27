@@ -4,6 +4,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 
 import streamlit as st
 from quizApp.dataBase import init_db
+from quizApp.pages.User import User, Student, Teacher
 
 db = init_db.dbIns
 init_db.createTables()
@@ -20,26 +21,20 @@ with tab1:
     
     if st.button("Login", key="login_btn"):
         st.session_state.logged_in = True
-        users = db.getAll("users")
-        found = False
         
-        for u in users:
-            if u[1] == login_name and u[2] == login_pass:
-                found = True
-                st.success("Login Successful!")
-                
-                st.session_state["userID"] = u[0]
-                
-                if u[3] == "teacher":
-                    st.session_state["teacher_id"] = u[0]
-                    st.session_state.role = u[3]
-                    st.switch_page("pages/exams.py")
-                else:
-                    st.session_state.role = u[3]
-                    st.switch_page("pages/teachers.py")
-                break
+        user = User.get_user_by_credentials(login_name, login_pass)
         
-        if not found:
+        if user:
+            st.success("Login Successful!")
+            
+            st.session_state["current_user"] = user            
+            if isinstance(user, Teacher):
+                st.session_state["teacher_id"] = user.Uid
+                st.session_state.role = user.role
+                st.switch_page("pages/exams.py")
+            else:
+                st.switch_page("pages/teachers.py")
+        else:
             st.error("Wrong Username or Password")
 
 with tab2:
@@ -53,28 +48,26 @@ with tab2:
     if st.button("sign up", key="signup_btn"):
         st.write("button clicked")
         users = db.getAll("users")
-        user = None
-        
-        for u in users:
-            if u[1] == username:
-                user = u
-                break
+        user = User.get_user_by_credentials(username,password)
         
         if not user:
-            Uid = db.insert("users", {
-                "userName" : username,
-                "password" : password,
-                "role" : role
-            })
+            if role == "student":
+                new_user = Student(None, username, password)
+            else:
+                new_user = Teacher(None, username, password)
+            
+            Uid = User.insert_user(new_user)
+            
+            new_user.Uid = Uid
+            
             st.success("success adding user")
             
-            if(role == "student"):
-                st.session_state["userID"] = Uid
-                st.session_state.role = role
+            st.session_state["current_user"] = new_user
+            
+            if isinstance(new_user, Student):
                 st.switch_page("pages/teachers.py")
             else:
                 st.session_state["teacher_id"] = Uid
-                st.session_state.role = role
                 st.switch_page("pages/exams.py")
         else:
             st.error("user exist")

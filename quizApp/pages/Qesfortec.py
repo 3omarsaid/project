@@ -3,83 +3,90 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 import streamlit as st
 from quizApp.dataBase import init_db
+
 db = init_db.dbIns
 
-teacherid = st.session_state["teacher_id"]
+current_user = st.session_state.get("current_user")
 
-title=st.text_input("title",placeholder="enter the title of the exam")
-timertype=st.radio("timeer type",["Question","exam"])
-timeinmin=st.number_input("time in minutes")
+if not current_user:
+    st.error("Please login first")
+    st.switch_page("pages/authntcation.py")
+    st.stop()
+
+teacherid = current_user.Uid
+
+title = st.text_input("title", placeholder="enter the title of the exam")
+timertype = st.radio("timer type", ["Question", "exam"])
+timeinmin = st.number_input("time in minutes")
 if "count" not in st.session_state:
-    st.session_state.count=0
+    st.session_state.count = 0
 if "exmid" not in st.session_state:
     st.session_state.exmid = None
 if "QUsids" not in st.session_state:
-    st.session_state.QUsids=[]
+    st.session_state.QUsids = []
 if st.button("create exam"):
-    st.session_state.exmid =db.insert("exams",{"TchID":teacherid,"title":title,"timerType":timertype,"time_s":timeinmin*60})
+    st.session_state.exmid = db.insert("exams", {"TchID": teacherid, "title": title, "timerType": timertype, "time_s": timeinmin*60})
 
 if st.session_state.exmid:
     exmid = st.session_state.exmid
     if st.button("update exam"):
-        db.update("exams",{"TchID":teacherid,"title":title,"timerType":timertype,"time_s":timeinmin*60},{"ExID":exmid})
-    qus={}
+        db.update("exams", {"TchID": teacherid, "title": title, "timerType": timertype, "time_s": timeinmin*60}, {"ExID": exmid})
+    qus = {}
     choices = []
     def creation(indx):
         global qus
         global choices
-        header=st.text_input("header",placeholder="enter your qestion ",key=f"header{indx}")
+        header = st.text_input("header", placeholder="enter your qestion ", key=f"header{indx}")
         with st.container():
-            col1,col2 = st.columns([1,1])
+            col1, col2 = st.columns([1, 1])
             with col1:
-                ch1=st.text_input("choose 1",placeholder="enter your choose ",key=f"ch1{indx}")
-                ch2=st.text_input("choose 2",placeholder="enter your choose ",key=f"ch2{indx}")
+                ch1 = st.text_input("choose 1", placeholder="enter your choose ", key=f"ch1{indx}")
+                ch2 = st.text_input("choose 2", placeholder="enter your choose ", key=f"ch2{indx}")
             with col2:
-                ch3=st.text_input("choose 3",placeholder="enter your choose ",key=f"ch3{indx}")
-                ch4=st.text_input("choose 4",placeholder="enter your choose ",key=f"ch4{indx}")
-        correct=st.selectbox("correct choice",[ch1,ch2,ch3,ch4],key=f"correct{indx}")
-        if st.button("Update",key=f"update{indx}"):
-            qus={"ExID":st.session_state.exmid,"header":header}
-            choices=[{"text":ch1,"correct":correct==ch1},
-                        {"text":ch2,"correct":correct==ch2},
-                        {"text":ch3,"correct":correct==ch3},
-                        {"text":ch4,"correct":correct==ch4},]
+                ch3 = st.text_input("choose 3", placeholder="enter your choose ", key=f"ch3{indx}")
+                ch4 = st.text_input("choose 4", placeholder="enter your choose ", key=f"ch4{indx}")
+        correct = st.selectbox("correct choice", [ch1, ch2, ch3, ch4], key=f"correct{indx}")
+        if st.button("Update", key=f"update{indx}"):
+            qus = {"ExID": st.session_state.exmid, "header": header}
+            choices = [{"text": ch1, "correct": correct==ch1},
+                        {"text": ch2, "correct": correct==ch2},
+                        {"text": ch3, "correct": correct==ch3},
+                        {"text": ch4, "correct": correct==ch4},]
             qusid = st.session_state.QUsids[indx]
-            db.update("qustions",qus,{"QusID":qusid})
+            db.update("qustions", qus, {"QusID": qusid})
             db.delete("choices", {"QusID": qusid})
             for cho in choices:
                 cho["QusID"] = qusid
             db.insertMany("choices", choices)
             st.rerun()
         st.write("-------------------------------")
-        if indx==st.session_state.count:
-            qus={"ExID":st.session_state.exmid,"header":header}
-            choices=[{"text":ch1,"correct":correct==ch1},
-                        {"text":ch2,"correct":correct==ch2},
-                        {"text":ch3,"correct":correct==ch3},
-                        {"text":ch4,"correct":correct==ch4},]
+        if indx == st.session_state.count:
+            qus = {"ExID": st.session_state.exmid, "header": header}
+            choices = [{"text": ch1, "correct": correct==ch1},
+                        {"text": ch2, "correct": correct==ch2},
+                        {"text": ch3, "correct": correct==ch3},
+                        {"text": ch4, "correct": correct==ch4},]
         
     for i in range(st.session_state.count+1):
         creation(i)
-    sub=st.button("submit")
-    add=st.button("Add anthor Qestion")
+    sub = st.button("submit")
+    add = st.button("Add anthor Qestion")
     if add:
-        qusid = db.insert("qustions",qus)
+        qusid = db.insert("qustions", qus)
         st.session_state.QUsids.append(qusid)
         for cho in choices:
             cho["QusID"] = qusid
-        db.insertMany("choices",choices)
-        st.session_state.count+=1
+        db.insertMany("choices", choices)
+        st.session_state.count += 1
         st.rerun()
 
     if sub:
-        qusid = db.insert("qustions",qus)
+        qusid = db.insert("qustions", qus)
         for cho in choices:
             cho["QusID"] = qusid
-        db.insertMany("choices",choices)
-        db.update("exams",{"TchID":teacherid,"title":title,"timerType":timertype,"time_s":timeinmin*60,"numQus":len(st.session_state.QUsids)},{"ExID":exmid})
+        db.insertMany("choices", choices)
+        db.update("exams", {"TchID": teacherid, "title": title, "timerType": timertype, "time_s": timeinmin*60, "numQus": len(st.session_state.QUsids)}, {"ExID": exmid})
         st.session_state.pop("count")
         st.session_state.pop("exmid")
         st.session_state.pop("QUsids")
         st.switch_page("pages/exams.py")
-        

@@ -3,23 +3,30 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 import streamlit as st
 from quizApp.dataBase import init_db
+from quizApp.pages.User import Student, Teacher
 import pandas as pd
-db = init_db.dbIns
-role = st.session_state.role
 
-tap1, tap2 = st.tabs(["table","dashboard"])
+db = init_db.dbIns
+
+current_user = st.session_state.get("current_user")
+
+if not current_user:
+    st.error("Please login first")
+    st.switch_page("pages/authntcation.py")
+    st.stop()
+
+tap1, tap2 = st.tabs(["table", "dashboard"])
 
 with tap1:
-    if role == "teacher":
+    if isinstance(current_user, Teacher):
         where = "a.TchID"
         name = "Stu"
-        tchid= st.session_state["teacher_id"]
-        params = (tchid,)
+        params = (current_user.Uid,)
     else:
         where = "a.StuID"
         name = "Tch"
-        stuid = st.session_state["userID"]
-        params = (stuid,)
+        params = (current_user.Uid,)
+    
     query = f"""
     select {name}.userName, e.title, a.score,a.numQus,a.duration_S,a.total_time,a.start_at from attempts a
     join exams e on e.ExID = a.Exid
@@ -28,16 +35,16 @@ with tap1:
     where {where} = ?
     """
 
-    result =db.query(query,params)
-    df=pd.DataFrame(result,columns=[ 'student name'if name == "Stu" else 'teacher name' ,'Exam Title','Score','numQus','Duration','total time','Attempt Date'])
+    result = db.query(query, params)
+    df = pd.DataFrame(result, columns=['student name' if name == "Stu" else 'teacher name', 'Exam Title', 'Score', 'numQus', 'Duration', 'total time', 'Attempt Date'])
     st.dataframe(df)
 
 with tap2:
     st.title("Attempts Dashboard")
     
-    if role == "student":
+    if isinstance(current_user, Student):
         st.subheader("Your Exam Performance")
-    if role == "teacher":
+    if isinstance(current_user, Teacher):
         st.subheader("Overview of exams AVG scores")
 
         st.bar_chart(
@@ -53,7 +60,7 @@ with tap2:
 
     with col3:
         st.metric("Highest Score", df["Score"].max())
-    col1 , col2 = st.columns([1,1])
+    col1, col2 = st.columns([1, 1])
     with col1:
         st.subheader("Score Distribution")
 
